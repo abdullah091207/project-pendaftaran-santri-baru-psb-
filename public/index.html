@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Santri Baru</title>
+
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #40E0D0, purple); /* Tosca → Benhur */
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        color: white;
+    }
+
+    p {
+        text-align: center;
+        color: #f0f0f0;
+    }
+
+    form {
+        background:skyblue;
+        max-width: 500px;
+        margin: 20px auto;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    label {
+        font-weight: bold;
+        color: #0F52BA; /* Benhur */
+    }
+
+    input, select {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        transition: 0.3s;
+    }
+
+    input:focus, select:focus {
+        border-color: #40E0D0; /* Tosca */
+        outline: none;
+        box-shadow: 0 0 5px #40E0D0;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #0F52BA; /* Benhur */
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #40E0D0; /* Tosca */
+        color: #0F52BA;
+    }
+
+    #statusPesan {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    hr {
+        border: none;
+        height: 2px;
+        background: white;
+        margin: 20px 0;
+    }
+</style>
+    
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body>
+    <h1>Formulir Pendaftaran Santri Baru</h1>
+    <p>Silakan isi data calon santri dengan benar.</p>
+    <hr>
+
+    <form id="formPSB">
+        <div>
+            <label>Nama Lengkap:</label><br>
+            <input type="text" name="nama" placeholder="Contoh: Ahmad Fauzi" required>
+        </div><br>
+
+        <div>
+            <label>Jenis Kelamin:</label><br>
+            <select name="gender" required>
+                <option value="">-- Pilih --</option>
+                <option value="Ikhwan">Ikhwan (Laki-laki)</option>
+                <option value="Akhwat">Akhwat (Perempuan)</option>
+            </select>
+        </div><br>
+
+        <div>
+            <label>Jumlah Hafalan (Juz):</label><br>
+            <input type="number" name="hafalan" value="0" min="0" max="30">
+        </div><br>
+
+        <div>
+            <label>Nama Wali:</label><br>
+            <input type="text" name="wali" placeholder="Nama Ayah/Ibu" required>
+        </div><br>
+
+        <div class="g-recaptcha" data-sitekey="6LekmLQsAAAAAJjsJRyGIzWL3R1LEgfbv6EivsPz"></div>
+        <br>
+
+        <button type="submit" id="btnSubmit">Kirim Pendaftaran</button>
+    </form>
+
+<h3 id="statusPesan"></h3>
+
+<script>
+  const form = document.getElementById('formPSB');
+  const statusPesan = document.getElementById('statusPesan');
+
+  form.onsubmit = async (e) => {
+    e.preventDefault(); // Mencegah halaman refresh
+
+    statusPesan.innerText = "Sedang memproses...";
+    statusPesan.style.color = "blue";
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('/api/submit', {
+        method: 'POST',
+        body: formData
+      });
+
+      const hasil = await response.json();
+
+      if (response.ok) {
+        statusPesan.innerText = " Berhasil: " + hasil.message;
+        statusPesan.style.color = "white";
+        form.reset(); // Kosongkan form
+        grecaptcha.reset(); // Kosongkan centang captcha
+      } else {
+        statusPesan.innerText = " Gagal: " + (hasil.error || "Terjadi kesalahan");
+        statusPesan.style.color = "red";
+      }
+    } catch (err) {
+      statusPesan.innerText = " Gagal menghubungi server backend.";
+      statusPesan.style.color = "red";
+    }
+  };
+</script>
+</body>
+</html>
